@@ -22,6 +22,10 @@ io.on('connection', (socket) => {
   } else if (!playerSockets.black) {
     playerSockets.black = socket;
     socket.emit('color', 'b');
+  } else {
+    // If both colors are already assigned, don't allow a third player
+    socket.emit('full', 'Game is full');
+    socket.disconnect();
   }
 
   socket.on('move', (move) => {
@@ -35,10 +39,17 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');
+    // Reset the game and notify the other player
     if (playerSockets.white === socket) {
       playerSockets.white = null;
+      if (playerSockets.black) {
+        playerSockets.black.emit('opponent-disconnected');
+      }
     } else if (playerSockets.black === socket) {
       playerSockets.black = null;
+      if (playerSockets.white) {
+        playerSockets.white.emit('opponent-disconnected');
+      }
     }
     game.reset();
   });

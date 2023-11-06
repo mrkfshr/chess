@@ -2,28 +2,33 @@ window.onload = function() {
     const socket = io();
     let playerColor = null;
     let game = new Chess();
-
+  
     const boardConfig = {
-        draggable: true,
-        position: 'start',
-        pieceTheme: '/chessboardjs-master/website/img/chesspieces/wikipedia/{piece}.png', // Correct path for the chess pieces
-        onDragStart: onDragStart,
-        onDrop: onDrop,
-        onSnapEnd: onSnapEnd
+      draggable: true,
+      position: 'start',
+      pieceTheme: '/chessboardjs-master/website/img/chesspieces/wikipedia/{piece}.png',
+      onDragStart: onDragStart,
+      onDrop: onDrop,
+      onSnapEnd: onSnapEnd
     };
     let board = Chessboard('board', boardConfig);
-
+  
     socket.on('color', (color) => {
-        playerColor = color;
-        board.orientation(color === 'w' ? 'white' : 'black');
-        document.getElementById('player-color').textContent = color === 'w' ? 'White' : 'Black';
+      playerColor = color;
+      board.orientation(color === 'w' ? 'white' : 'black');
+      document.getElementById('player-color').textContent = color === 'w' ? 'White' : 'Black';
     });
-
-    socket.on('move', (move) => {
-        game.move(move);
-        board.position(game.fen());
-        updateCapturedPieces();
-        updateTurnIndicator();
+  
+    socket.on('full', (message) => {
+      alert(message);
+    });
+  
+    socket.on('opponent-disconnected', () => {
+      alert('Your opponent has disconnected. The game will reset.');
+      game.reset();
+      board.start();
+      updateCapturedPieces();
+      updateTurnIndicator();
     });
 
     socket.on('move-rejected', () => {
