@@ -11,8 +11,8 @@ window.onload = function() {
 
     let game = new Chess();
     let capturedPieces = {
-        'w': { 'P': 0, 'R': 0, 'N': 0, 'B': 0, 'Q': 0 },
-        'b': { 'P': 0, 'R': 0, 'N': 0, 'B': 0, 'Q': 0 }
+        'w': [],
+        'b': []
     };
 
     function onDragStart(source, piece, position, orientation) {
@@ -31,7 +31,9 @@ window.onload = function() {
 
         if (move === null) return 'snapback';
 
-        updateCapturedPieces(move);
+        if (move.captured) {
+            capturedPieces[move.color === 'w' ? 'b' : 'w'].push(move.captured);
+        }
         socket.emit('move', move);
         board.position(game.fen());
         updateUI();
@@ -41,30 +43,25 @@ window.onload = function() {
         board.position(game.fen());
     }
 
-    function updateCapturedPieces(move) {
-        if (move.captured) {
-            capturedPieces[move.color === 'w' ? 'b' : 'w'][move.captured.toUpperCase()]++;
-        }
-    }
-
     function updateUI() {
         // Update the UI for the captured pieces
-        for (const color in capturedPieces) {
-            for (const piece in capturedPieces[color]) {
-                const elementId = color + piece + '-captured';
-                const count = capturedPieces[color][piece];
-                const element = document.getElementById(elementId);
-                if (element) {
-                    element.textContent = count > 0 ? count : '';
-                }
-            }
-        }
+        ['w', 'b'].forEach(color => {
+            const capturedContainer = document.getElementById(color + '-captured');
+            capturedContainer.innerHTML = ''; // Clear the container
+            capturedPieces[color].forEach(piece => {
+                const pieceImage = document.createElement('img');
+                pieceImage.src = '/chessboardjs-master/website/img/chesspieces/wikipedia/' + color + piece.toUpperCase() + '.png';
+                capturedContainer.appendChild(pieceImage);
+            });
+        });
     }
 
     socket.on('move', (move) => {
         game.move(move);
         board.position(game.fen());
-        updateCapturedPieces(move);
+        if (move.captured) {
+            capturedPieces[move.color === 'w' ? 'b' : 'w'].push(move.captured);
+        }
         updateUI();
     });
 }
