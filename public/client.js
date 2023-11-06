@@ -6,7 +6,7 @@ window.onload = function() {
     const boardConfig = {
         draggable: true,
         position: 'start',
-        pieceTheme: '/chessboardjs-master/website/img/chesspieces/wikipedia/{piece}.png',
+        pieceTheme: '/chessboardjs-master/website/img/chesspieces/wikipedia/{piece}.png', // Correct path for the chess pieces
         onDragStart: onDragStart,
         onDrop: onDrop,
         onSnapEnd: onSnapEnd
@@ -55,14 +55,30 @@ window.onload = function() {
     }
 
     function updateCapturedPieces() {
-        // Logic to update the display of captured pieces
-        // This should iterate over the game history or board state
-        // and display the captured pieces accordingly.
+        const history = game.history({ verbose: true });
+        const capturedPieces = { w: [], b: [] };
+
+        history.forEach(move => {
+            if (move.captured) {
+                capturedPieces[move.color === 'w' ? 'b' : 'w'].push(move.captured);
+            }
+        });
+
+        displayCapturedPieces('w-captured', capturedPieces['b']);
+        displayCapturedPieces('b-captured', capturedPieces['w']);
+    }
+
+    function displayCapturedPieces(elementId, pieces) {
+        const element = document.getElementById(elementId);
+        element.innerHTML = ''; // Clear previous captured pieces
+        pieces.forEach(piece => {
+            const imgElement = document.createElement('img');
+            imgElement.src = `/chessboardjs-master/website/img/chesspieces/wikipedia/${piece}.png`; // Correct path for the chess pieces
+            element.appendChild(imgElement);
+        });
     }
 
     function updateTurnIndicator() {
-        // Logic to update the turn indicator
-        // This should check the game.turn() value and update the UI accordingly.
         document.getElementById('turn-color').textContent = game.turn() === 'w' ? 'White' : 'Black';
     }
 };
