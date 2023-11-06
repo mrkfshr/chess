@@ -1,13 +1,24 @@
 const express = require('express');
+const http = require('http');
+const socketIO = require('socket.io');
+const { Chess } = require('chess.js');
+
 const app = express();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const server = http.createServer(app);
+const io = socketIO(server);
 
-// Serve static files (e.g., HTML, CSS, JavaScript) from a 'public' folder
-app.use(express.static('public'));
+app.use(express.static('public')); // Serve static files from the 'public' directory
 
-// Start the server on a specific port (e.g., 3000)
-const port = 3000;
-http.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+io.on('connection', (socket) => {
+  console.log('New client connected');
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+
+  // Handle chess game logic here
+});
+
+server.listen(3000, () => {
+  console.log('Listening on *:3000');
 });
