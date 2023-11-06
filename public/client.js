@@ -73,7 +73,7 @@ window.onload = function() {
         element.innerHTML = ''; // Clear previous captured pieces
         pieces.forEach(piece => {
             const imgElement = document.createElement('img');
-            imgElement.src = `/chessboardjs-master/website/img/chesspieces/wikipedia/${piece}.png`; // Correct path for the chess pieces
+            imgElement.src = `chessboardjs-master/website/img/chesspieces/wikipedia/${piece}.png`; // Correct path for the chess pieces
             element.appendChild(imgElement);
         });
     }
