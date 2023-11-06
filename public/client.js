@@ -54,7 +54,14 @@ window.onload = function() {
                 capturedContainer.appendChild(pieceImage);
             });
         });
+    
+        // Update the turn indicator
+        const turnIndicator = document.getElementById('turn-color');
+        turnIndicator.textContent = game.turn() === 'w' ? 'White' : 'Black';
     }
+    
+    // Make sure to call updateUI in the onDrop function and socket.on('move') callback
+    
 
     socket.on('move', (move) => {
         game.move(move);
