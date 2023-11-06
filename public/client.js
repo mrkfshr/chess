@@ -69,14 +69,16 @@ window.onload = function() {
     }
 
     function displayCapturedPieces(elementId, pieces) {
-    const element = document.getElementById(elementId);
-    element.innerHTML = ''; // Clear previous captured pieces
-    pieces.forEach(piece => {
-        const imgElement = document.createElement('img');
-        imgElement.src = `/chessboardjs-master/website/img/chesspieces/wikipedia/${piece.toUpperCase()}.png`; // Correct path for the chess pieces
-        element.appendChild(imgElement);
-    });
-}
+        const element = document.getElementById(elementId);
+        element.innerHTML = ''; // Clear previous captured pieces
+        pieces.forEach(piece => {
+            const imgElement = document.createElement('img');
+            // Ensure the filename is in lowercase
+            imgElement.src = `/chessboardjs-master/website/img/chesspieces/wikipedia/${piece}.png`;
+            element.appendChild(imgElement);
+        });
+    }
+    
 
     function updateTurnIndicator() {
         document.getElementById('turn-color').textContent = game.turn() === 'w' ? 'White' : 'Black';
