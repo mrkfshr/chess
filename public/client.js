@@ -51,7 +51,7 @@ window.onload = function() {
         // Update the UI for the captured pieces
         for (const color in capturedPieces) {
             for (const piece in capturedPieces[color]) {
-                const elementId = color + piece;
+                const elementId = color + piece + '-captured';
                 const count = capturedPieces[color][piece];
                 const element = document.getElementById(elementId);
                 if (element) {
