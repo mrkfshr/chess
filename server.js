@@ -9,21 +9,41 @@ const io = socketIO(server);
 
 app.use(express.static('public')); // Serve static files from the 'public' directory
 
-let players = { white: null, black: null };
 let game = new Chess();
+let playerSockets = { white: null, black: null };
 
 io.on('connection', (socket) => {
   console.log('New client connected');
 
   // Assign a color to the player if not already assigned
-  if (!players.white) {
-    players.white = socket.id;
+  if (!playerSockets.white) {
+    playerSockets.white = socket;
     socket.emit('color', 'w');
-  } else if (!players.black) {
-    players.black = socket.id;
+  } else if (!playerSockets.black) {
+    playerSockets.black = socket;
     socket.emit('color', 'b');
   }
 
   socket.on('move', (move) => {
-    // Validate move
-    let moveObj = game.move(move
+    let moveObj = game.move(move);
+    if (moveObj === null) {
+      socket.emit('move-rejected');
+    } else {
+      io.emit('move', moveObj);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+    if (playerSockets.white === socket) {
+      playerSockets.white = null;
+    } else if (playerSockets.black === socket) {
+      playerSockets.black = null;
+    }
+    game.reset();
+  });
+});
+
+server.listen(3000, () => {
+  console.log('Listening on *:3000');
+});
