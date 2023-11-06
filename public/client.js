@@ -84,8 +84,15 @@ window.onload = function() {
 
     function updateGameStatus() {
         let status = '';
-
-        if (game.in_checkmate()) {
+    
+        // Check if the king has been captured
+        const isKingCaptured = (color) => {
+            return !game.board().some(row => row.some(piece => piece && piece.type === 'k' && piece.color === color));
+        };
+    
+        if (isKingCaptured('w') || isKingCaptured('b')) {
+            status = 'Game over - ' + (isKingCaptured('w') ? 'Black' : 'White') + ' wins by capturing the king!';
+        } else if (game.in_checkmate()) {
             status = 'Checkmate - ' + (game.turn() === 'b' ? 'White' : 'Black') + ' wins!';
         } else if (game.in_draw()) {
             status = 'Draw - 50-move rule, threefold repetition, or insufficient material!';
@@ -98,8 +105,8 @@ window.onload = function() {
         } else {
             status = 'Game in progress - ' + (game.turn() === 'w' ? 'White' : 'Black') + '\'s turn';
         }
-
+    
         // Display the status
         document.getElementById('status').textContent = status;
-    }
+    } 
 };
