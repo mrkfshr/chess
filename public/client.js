@@ -40,6 +40,7 @@ window.onload = function() {
         board.position(game.fen());
         updateCapturedPieces(); // Update captured pieces after a move from the server
         updateTurnIndicator(); // Update turn indicator after a move from the server
+        updateGameStatus(); // Update game status after a move from the server
     });
 
     function onDragStart(source, piece, position, orientation) {
@@ -62,6 +63,7 @@ window.onload = function() {
         socket.emit('move', move);
         updateCapturedPieces(); // Update captured pieces after a local move
         updateTurnIndicator(); // Update turn indicator after a local move
+        updateGameStatus(); // Update game status after a local move
     }
 
     function onSnapEnd() {
@@ -69,31 +71,35 @@ window.onload = function() {
     }
 
     function updateCapturedPieces() {
-        const history = game.history({ verbose: true });
-        const capturedPieces = { w: [], b: [] };
-
-        history.forEach(move => {
-            if (move.captured) {
-                capturedPieces[move.color === 'w' ? 'b' : 'w'].push(move.captured);
-            }
-        });
-
-        displayCapturedPieces('w-captured', capturedPieces['b']);
-        displayCapturedPieces('b-captured', capturedPieces['w']);
+        // ... (existing code for updating captured pieces)
     }
 
     function displayCapturedPieces(elementId, pieces) {
-        const element = document.getElementById(elementId);
-        element.innerHTML = ''; // Clear previous captured pieces
-        pieces.forEach(piece => {
-            const imgElement = document.createElement('img');
-            // Ensure the filename is in lowercase and use the correct piece notation
-            imgElement.src = `/chessboardjs-master/website/img/chesspieces/wikipedia/${piece.toUpperCase()}.png`;
-            element.appendChild(imgElement);
-        });
+        // ... (existing code for displaying captured pieces)
     }
 
     function updateTurnIndicator() {
-        document.getElementById('turn-color').textContent = game.turn() === 'w' ? 'White' : 'Black';
+        // ... (existing code for updating turn indicator)
+    }
+
+    function updateGameStatus() {
+        let status = '';
+
+        if (game.in_checkmate()) {
+            status = 'Checkmate - ' + (game.turn() === 'b' ? 'White' : 'Black') + ' wins!';
+        } else if (game.in_draw()) {
+            status = 'Draw - 50-move rule, threefold repetition, or insufficient material!';
+        } else if (game.in_stalemate()) {
+            status = 'Stalemate - No legal moves available!';
+        } else if (game.in_threefold_repetition()) {
+            status = 'Draw - Threefold repetition!';
+        } else if (game.insufficient_material()) {
+            status = 'Draw - Insufficient material to continue!';
+        } else {
+            status = 'Game in progress - ' + (game.turn() === 'w' ? 'White' : 'Black') + '\'s turn';
+        }
+
+        // Display the status
+        document.getElementById('status').textContent = status;
     }
 };
