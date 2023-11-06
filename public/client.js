@@ -69,6 +69,7 @@ window.onload = function() {
     });
 
     socket.on('move-rejected', (move) => {
+        // Handle move rejection by reverting to the previous position
         board.position(game.fen());
     });
 }

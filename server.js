@@ -26,27 +26,4 @@ io.on('connection', (socket) => {
 
   socket.on('move', (move) => {
     // Validate move
-    let moveObj = game.move(move);
-    if (moveObj === null) {
-      // If move is not valid, emit an event to revert the move on the client-side
-      socket.emit('move-rejected', move);
-    } else {
-      // If move is valid, broadcast it to all clients
-      io.emit('move', move);
-    }
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-    // Remove the player from the players object
-    if (players.white === socket.id) {
-      players.white = null;
-    } else if (players.black === socket.id) {
-      players.black = null;
-    }
-  });
-});
-
-server.listen(3000, () => {
-  console.log('Listening on *:3000');
-});
+    let moveObj = game.move(move
