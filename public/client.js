@@ -1,5 +1,8 @@
 window.onload = function() {
     const socket = io();
+    let playerColor = null; // Store the player's color
+    let capturedPieces = { 'w': [], 'b': [] };
+
     const board = Chessboard('board', {
         position: 'start',
         draggable: true,
@@ -10,14 +13,15 @@ window.onload = function() {
     });
 
     let game = new Chess();
-    let capturedPieces = {
-        'w': [],
-        'b': []
-    };
+
+    socket.on('color', (color) => {
+        playerColor = color;
+        document.getElementById('player-color').textContent = playerColor === 'w' ? 'White' : 'Black';
+        board.orientation(playerColor === 'w' ? 'white' : 'black');
+    });
 
     function onDragStart(source, piece, position, orientation) {
-        if (game.game_over() || (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-            (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+        if (game.game_over() || game.turn() !== playerColor || piece.search(new RegExp('^' + playerColor)) === -1) {
             return false;
         }
     }
@@ -31,20 +35,22 @@ window.onload = function() {
 
         if (move === null) return 'snapback';
 
-        if (move.captured) {
-            capturedPieces[move.color === 'w' ? 'b' : 'w'].push(move.captured);
-        }
+        updateCapturedPieces(move);
         socket.emit('move', move);
-        board.position(game.fen());
-        updateUI();
     }
 
     function onSnapEnd() {
         board.position(game.fen());
     }
 
-    function updateUI() {
-        // Update the UI for the captured pieces
+    function updateCapturedPieces(move) {
+        if (move.captured) {
+            capturedPieces[move.color === 'w' ? 'b' : 'w'].push(move.captured);
+            updateCapturedPiecesUI();
+        }
+    }
+
+    function updateCapturedPiecesUI() {
         ['w', 'b'].forEach(color => {
             const capturedContainer = document.getElementById(color + '-captured');
             capturedContainer.innerHTML = ''; // Clear the container
@@ -54,21 +60,15 @@ window.onload = function() {
                 capturedContainer.appendChild(pieceImage);
             });
         });
-    
-        // Update the turn indicator
-        const turnIndicator = document.getElementById('turn-color');
-        turnIndicator.textContent = game.turn() === 'w' ? 'White' : 'Black';
     }
-    
-    // Make sure to call updateUI in the onDrop function and socket.on('move') callback
-    
 
     socket.on('move', (move) => {
         game.move(move);
         board.position(game.fen());
-        if (move.captured) {
-            capturedPieces[move.color === 'w' ? 'b' : 'w'].push(move.captured);
-        }
-        updateUI();
+        updateCapturedPieces(move);
+    });
+
+    socket.on('move-rejected', (move) => {
+        board.position(game.fen());
     });
 }
