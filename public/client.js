@@ -1,30 +1,19 @@
 window.onload = function() {
     const socket = io();
-
     const board = Chessboard('board', {
-        draggable: true,
-        dropOffBoard: 'trash',
-        sparePieces: true,
         position: 'start',
-        pieceTheme: '/chessboardjs-master/website/img/chesspieces/wikipedia/{piece}.png'
+        draggable: true,
+        pieceTheme: '/chessboardjs-master/website/img/chesspieces/wikipedia/{piece}.png',
+        onDragStart: onDragStart,
+        onDrop: onDrop,
+        onSnapEnd: onSnapEnd,
     });
 
-    const game = new Chess();
-
-    // Function to update the display of captured pieces
-    function updateCapturedPieces(capturedPiece) {
-        var color = capturedPiece.color;
-        var piece = capturedPiece.type;
-
-        // Convert piece to uppercase if it's white for the image file name
-        var pieceImage = (color === 'w' ? piece.toUpperCase() : piece) + '.png';
-
-        // Add the captured piece to the appropriate list
-        var capturedList = document.getElementById(color === 'w' ? 'black-captured-pieces' : 'white-captured-pieces');
-        var img = document.createElement('img');
-        img.src = '/chessboardjs-master/website/img/chesspieces/wikipedia/' + pieceImage;
-        capturedList.appendChild(img);
-    }
+    let game = new Chess();
+    let capturedPieces = {
+        'w': { 'P': 0, 'R': 0, 'N': 0, 'B': 0, 'Q': 0 },
+        'b': { 'P': 0, 'R': 0, 'N': 0, 'B': 0, 'Q': 0 }
+    };
 
     function onDragStart(source, piece, position, orientation) {
         if (game.game_over() || (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
@@ -34,37 +23,48 @@ window.onload = function() {
     }
 
     function onDrop(source, target) {
-        // See if the move is a capture
-        var capturedPiece = game.get(target);
-
-        // Make the move on the game object
-        var move = game.move({
+        let move = game.move({
             from: source,
             to: target,
-            promotion: 'q' // NOTE: always promote to a queen for simplicity
+            promotion: 'q'
         });
 
-        // If the move is illegal, snapback
         if (move === null) return 'snapback';
 
-        // If a piece was captured, update the captured pieces display
-        if (capturedPiece) {
-            updateCapturedPieces(capturedPiece);
-        }
-
-        // Emit the move to the server
+        updateCapturedPieces(move);
         socket.emit('move', move);
         board.position(game.fen());
+        updateUI();
     }
 
     function onSnapEnd() {
         board.position(game.fen());
     }
 
-    board.start();
+    function updateCapturedPieces(move) {
+        if (move.captured) {
+            capturedPieces[move.color === 'w' ? 'b' : 'w'][move.captured.toUpperCase()]++;
+        }
+    }
 
-    socket.on('move', function(msg) {
-        game.move(msg);
+    function updateUI() {
+        // Update the UI for the captured pieces
+        for (const color in capturedPieces) {
+            for (const piece in capturedPieces[color]) {
+                const elementId = color + piece;
+                const count = capturedPieces[color][piece];
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = count > 0 ? count : '';
+                }
+            }
+        }
+    }
+
+    socket.on('move', (move) => {
+        game.move(move);
         board.position(game.fen());
+        updateCapturedPieces(move);
+        updateUI();
     });
 }
