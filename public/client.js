@@ -53,18 +53,23 @@ window.onload = function() {
     }
 
     function onDrop(source, target) {
-        let move = game.move({
-            from: source,
-            to: target,
-            promotion: 'q' // NOTE: always promote to a queen for simplicity
-        });
+    let move = game.move({
+        from: source,
+        to: target,
+        promotion: 'q' // NOTE: always promote to a queen for simplicity
+    });
 
-        if (move === null) return 'snapback';
-        socket.emit('move', move);
-        updateCapturedPieces(); // Update captured pieces after a local move
-        updateTurnIndicator(); // Update turn indicator after a local move
-        updateGameStatus(); // Update game status after a local move
+    // If the move is invalid, show an alert and snap the piece back
+    if (move === null) {
+        alert('Invalid move!');
+        return 'snapback';
     }
+
+    socket.emit('move', move);
+    updateCapturedPieces(); // Update captured pieces after a local move
+    updateTurnIndicator(); // Update turn indicator after a local move
+    updateGameStatus(); // Update game status after a local move
+}
 
     function onSnapEnd() {
         board.position(game.fen());
