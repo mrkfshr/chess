@@ -12,6 +12,11 @@ app.use(express.static('public')); // Serve static files from the 'public' direc
 io.on('connection', (socket) => {
   console.log('New client connected');
 
+  socket.on('move', (move) => {
+    // Broadcast the move to all other clients
+    socket.broadcast.emit('move', move);
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
