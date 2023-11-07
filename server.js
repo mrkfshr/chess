@@ -112,6 +112,37 @@ app.post('/register', async (req, res) => {
     }
   });
 
+  // User login endpoint
+app.post('/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(400).send('Username and password are required');
+        }
+
+        // Check if user exists
+        const userResult = await pool.query('SELECT id, username, password FROM players WHERE username = $1', [username]);
+        if (userResult.rows.length === 0) {
+            return res.status(401).send('User does not exist');
+        }
+
+        // Check if password is correct
+        const user = userResult.rows[0];
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).send('Password is incorrect');
+        }
+
+        // Set user session
+        req.session.userId = user.id;
+
+        res.status(200).json({ id: user.id, username: user.username });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+    }
+});
+
 server.listen(3000, () => {
   console.log('Listening on *:3000');
 });
