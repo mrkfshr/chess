@@ -2,10 +2,21 @@ const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 const { Chess } = require('chess.js');
+const bcrypt = require('bcrypt');
+const { Pool } = require('pg');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+
+// PostgreSQL pool setup (configure with your credentials)
+const pool = new Pool({
+  user: 'mrk', // Replace with your username
+  host: '192.168.1.19',
+  database: 'chessusers',
+  password: '8sapenny', // Replace with your password
+  port: 5432, // Default PostgreSQL port
+});
 
 app.use(express.static('public')); // Serve static files from the 'public' directory
 
@@ -53,6 +64,26 @@ io.on('connection', (socket) => {
     }
     game.reset();
   });
+});
+
+// User registration endpoint
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).send('Username and password are required');
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await pool.query(
+      'INSERT INTO players(username, password) VALUES($1, $2) RETURNING id, username',
+      [username, hashedPassword]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
 });
 
 server.listen(3000, () => {
