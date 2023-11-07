@@ -4,6 +4,10 @@ const socketIO = require('socket.io');
 const { Chess } = require('chess.js');
 const bcrypt = require('bcrypt');
 const { Pool } = require('pg');
+const session = require('express-session'); // Include express-session
+
+// Load environment variables from .env file
+require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
@@ -21,7 +25,20 @@ const pool = new Pool({
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-app.use(express.static('public')); // Serve static files from the 'public' directory
+// Serve static files from the 'public' directory
+app.use(express.static('public'));
+
+// Session middleware setup
+app.use(session({
+  secret: process.env.SESSION_SECRET, // The secret key from your .env file
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true if using HTTPS
+    httpOnly: true, // Helps prevent cross-site scripting (XSS)
+    sameSite: 'strict' // Helps prevent cross-site request forgery (CSRF)
+  }
+}));
 
 app.get('/register', (req, res) => {
     res.sendFile('register.html', { root: './public' });
@@ -94,7 +111,6 @@ app.post('/register', async (req, res) => {
       res.status(500).send('Server error');
     }
   });
-  
 
 server.listen(3000, () => {
   console.log('Listening on *:3000');
