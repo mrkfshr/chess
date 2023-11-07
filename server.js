@@ -5,6 +5,7 @@ const { Chess } = require('chess.js');
 const bcrypt = require('bcrypt');
 const { Pool } = require('pg');
 const session = require('express-session'); // Include express-session
+const cors = require('cors');
 
 // Load environment variables from .env file
 require('dotenv').config();
@@ -12,6 +13,8 @@ require('dotenv').config();
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+
+app.use(cors());
 
 // PostgreSQL pool setup (configure with your credentials)
 const pool = new Pool({

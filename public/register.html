@@ -32,22 +32,20 @@
     </style>
 </head>
 <body>
-    <body>
-        <h2>Register</h2>
-        <form id="registration-form">
-            <div>
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <div>
-                <button type="submit">Register</button>
-            </div>
-        </form>
-    </body>
+    <h2>Register</h2>
+    <form id="registration-form">
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <button type="submit">Register</button>
+        </div>
+    </form>
     <script>
         document.getElementById('registration-form').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -79,6 +77,5 @@
             });
         });
     </script>
-    
 </body>
 </html>
