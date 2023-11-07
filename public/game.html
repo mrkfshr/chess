@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Game</title>
+    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="libs/chessboard.css">
+    <style>
+        #captured-pieces {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .captured {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 10px;
+        }
+        .captured img {
+            width: 24px;
+            height: 24px;
+            margin: 2px;
+        }
+        .captured .count {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Best Gamble Chess Game</h1>
+    <div id="board" style="width: 400px;"></div>
+    <div id="turn-indicator" style="text-align: center; margin-top: 10px;">
+        <h2>Turn: <span id="turn-color">White</span></h2>
+    </div>
+    <div id="captured-pieces">
+        <div class="captured" id="w-captured"></div>
+        <div class="captured" id="b-captured"></div>
+    </div>
+
+    <div id="status"></div>
+
+    </div>
+    
+    <div id="player-info">
+        <h2>You are playing as: <span id="player-color">...</span></h2>
+    </div>
+
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <!-- Include Chess and Chessboard.js libraries -->
+    <script src="libs/chess-0.10.2.min.js"></script>
+    <script src="libs/chessboard.js"></script>
+
+    <!-- Include Socket.io library -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <!-- Include client-side JavaScript -->
+    <script src="client.js"></script>
+</body>
+</html>

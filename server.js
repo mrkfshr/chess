@@ -43,8 +43,24 @@ app.use(session({
   }
 }));
 
+// Serve the homepage
+app.get('/', (req, res) => {
+    res.sendFile('index.html', { root: './public' });
+});
+
+//Serve the registration page
 app.get('/register', (req, res) => {
     res.sendFile('register.html', { root: './public' });
+});
+
+// Serve the login page
+app.get('/login', (req, res) => {
+    res.sendFile('login.html', { root: './public' });
+});
+
+// Serve the game.html file when the '/game' endpoint is accessed
+app.get('/game', (req, res) => {
+    res.sendFile('game.html', { root: './public' });
 });
 
 let game = new Chess();
@@ -146,6 +162,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Start the server
 server.listen(3000, () => {
   console.log('Listening on *:3000');
 });
