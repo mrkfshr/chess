@@ -23,6 +23,10 @@ app.use(express.json());
 
 app.use(express.static('public')); // Serve static files from the 'public' directory
 
+app.get('/register', (req, res) => {
+    res.sendFile('register.html', { root: './public' });
+});
+
 let game = new Chess();
 let playerSockets = { white: null, black: null };
 
