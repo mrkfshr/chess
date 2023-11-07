@@ -18,6 +18,9 @@ const pool = new Pool({
   port: 5432, // Default PostgreSQL port
 });
 
+// Middleware to parse JSON bodies
+app.use(express.json());
+
 app.use(express.static('public')); // Serve static files from the 'public' directory
 
 let game = new Chess();
@@ -68,23 +71,26 @@ io.on('connection', (socket) => {
 
 // User registration endpoint
 app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).send('Username and password are required');
-  }
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await pool.query(
-      'INSERT INTO players(username, password) VALUES($1, $2) RETURNING id, username',
-      [username, hashedPassword]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
-  }
-});
+    try {
+      const { username, password } = req.body;
+      if (!username || !password) {
+        return res.status(400).send('Username and password are required');
+      }
+  
+      const hashedPassword = await bcrypt.hash(password, 10);
+      // Assuming the default rank is 0 or any other default value you choose
+      const defaultRank = 100;
+      const result = await pool.query(
+        'INSERT INTO players(username, password, rank) VALUES($1, $2, $3) RETURNING id, username',
+        [username, hashedPassword, defaultRank]
+      );
+      res.status(201).json(result.rows[0]);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Server error');
+    }
+  });
+  
 
 server.listen(3000, () => {
   console.log('Listening on *:3000');
