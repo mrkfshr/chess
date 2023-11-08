@@ -20,6 +20,8 @@ body {
 }
 
 #board {
+    width: 50vw; 
+    height: 50vw;
  
 
 h1 {
