@@ -19,7 +19,7 @@ app.use(cors());
 // PostgreSQL pool setup (configure with your credentials)
 const pool = new Pool({
   user: 'mrk', // Replace with your username
-  host: '192.168.1.19',
+  host: '192.168.1.18',
   database: 'chessusers',
   password: '8sapenny', // Replace with your password
   port: 5432, // Default PostgreSQL port
